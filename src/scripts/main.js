@@ -1,37 +1,75 @@
 'use strict';
 
-const tableBody = document.querySelector('tbody');
-const sortedRows = Array.from(tableBody.querySelectorAll('tr'));
-const headerCells = document.querySelectorAll('thead th');
+document.addEventListener('DOMContentLoaded', () => {
+  const tableBody = document.querySelector('tbody');
+  const headerCells = document.querySelectorAll('thead th');
 
-headerCells.forEach((headerCell, index) => {
-  headerCell.addEventListener('click', () => {
-    sortedRows.sort((rowA, rowB) => {
-      const cellA = rowA.children[index].textContent.trim();
-      const cellB = rowB.children[index].textContent.trim();
+  if (!tableBody) {
+    return;
+  }
 
-      if (index === 0 || index === 1) {
-        return cellA.localeCompare(cellB);
-      } else if (index === 2) {
-        const numA = parseFloat(cellA);
-        const numB = parseFloat(cellB);
+  headerCells.forEach((headerCell, index) => {
+    headerCell.addEventListener('click', () => {
+      const rows = Array.from(tableBody.querySelectorAll('tr'));
 
-        return numA - numB;
-      } else if (index === 3) {
-        const cleanA = cellA.replace(/[^0-9.]/g, '');
-        const cleanB = cellB.replace(/[^0-9.]/g, '');
+      rows.sort((rowA, rowB) => {
+        const cellA = rowA.querySelectorAll('td')[index];
+        const cellB = rowB.querySelectorAll('td')[index];
 
-        const numA = parseFloat(cleanA);
-        const numB = parseFloat(cleanB);
+        const textA = cellA ? cellA.textContent.trim() : '';
+        const textB = cellB ? cellB.textContent.trim() : '';
 
-        return numA - numB;
-      }
+        if (index === 0 || index === 1) {
+          return textA.localeCompare(textB, 'ru', { sensitivity: 'base' });
+        }
 
-      return 0;
-    });
+        if (index === 2) {
+          const numA = parseFloat(textA);
+          const numB = parseFloat(textB);
 
-    sortedRows.forEach((row) => {
-      tableBody.appendChild(row);
+          if (isNaN(numA) && isNaN(numB)) {
+            return 0;
+          }
+
+          if (isNaN(numA)) {
+            return 1;
+          }
+
+          if (isNaN(numB)) {
+            return -1;
+          }
+
+          return numA - numB;
+        }
+
+        if (index === 3) {
+          const cleanA = textA.replace(/[^0-9.]/g, '');
+          const cleanB = textB.replace(/[^0-9.]/g, '');
+
+          const numA = parseFloat(cleanA);
+          const numB = parseFloat(cleanB);
+
+          if (isNaN(numA) && isNaN(numB)) {
+            return 0;
+          }
+
+          if (isNaN(numA)) {
+            return 1;
+          }
+
+          if (isNaN(numB)) {
+            return -1;
+          }
+
+          return numA - numB;
+        }
+
+        return 0;
+      });
+
+      rows.forEach((row) => {
+        tableBody.appendChild(row);
+      });
     });
   });
 });
